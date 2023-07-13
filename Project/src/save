@@ -1,0 +1,201 @@
+FILE NÀY CHỈ LƯU CÁC ĐOẠN CODE NHÁP , KO CÓ GIÁ TRỊ TRONG DỰ ÁN
+
+create table users(id bigint(20) not null auto_increment
+, email varchar(50) null , password varchar(120) null
+, username varchar(20) null , function_name varchar(20) null , primary key (id) , unique(email)
+, unique (username));
+
+create table hellojava(
+ email varchar(50) not null , password varchar(120) null
+, username varchar(20) null , primary key(email)
+);
+
+INSERT INTO students
+    (id, score1, score2)
+    VALUES
+        (1, 5, 8),
+        (2, 10, 8),
+        (3, 8, 3),
+        (4, 10, 7)
+    ON DUPLICATE KEY UPDATE
+        score1 = VALUES(score1),
+    score2 = VALUES(score2);
+
+    //////////////////////////
+
+    INSERT INTO users
+        (username, username)
+        VALUES
+        ("users1_default","user1"),
+            ("user2_default", "user2"),
+            ("user3_default","user3)
+        ON DUPLICATE KEY UPDATE
+            username = VALUES(username);
+
+
+   //////////////////////////////
+
+   UPDATE students SET score1 = 5, score2 = 8 WHERE id = 1;
+   UPDATE students SET score1 = 10, score2 = 8 WHERE id = 2;
+   UPDATE students SET score1 = 8, score2 = 3 WHERE id = 3;
+   UPDATE students SET score1 = 10, score2 = 7 WHERE id = 4;
+
+   //////////////////////////////////
+
+   UPDATE users SET function_name = "null" WHERE username = "user5";
+   UPDATE users SET function_name = "user2" WHERE username = "user2_default";
+   UPDATE users SET function_name = "user3" WHERE username = "user3_default";
+
+   ///////////////////////////////////////////////
+
+   UPDATE students s
+   JOIN (
+       SELECT 1 as id, 5 as new_score1, 8 as new_score2
+       UNION ALL
+       SELECT 2, 10, 8
+       UNION ALL
+       SELECT 3, 8, 3
+       UNION ALL
+       SELECT 4, 10, 7
+   ) vals ON s.id = vals.id
+   SET score1 = new_score1, score2 = new_score2;
+
+
+   /////////////////////////////////
+
+ UPDATE users s
+    JOIN (
+        SELECT 10 as id, null as new_function_name
+        UNION ALL
+        SELECT 11, null
+        SELECT 12, null
+    ) vals ON s.id = vals.id
+    SET function_name = new_function_name;
+
+
+
+@Entity
+@Table(name = "users2",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email")
+        })
+public class User2 {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank
+    @Size(max = 20)
+    private String username;
+
+    @NotBlank
+    @Size(max = 50)
+    @Email
+    private String email;
+
+    @NotBlank
+    @Size(max = 120)
+    private String password;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles")
+    private Set<Role> roles = new HashSet<>();
+    //name = likes;
+
+    public User2() {
+    }
+
+    public User2(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
+    public User2(String username) {
+        this.username = username;
+    }
+
+    /**
+     * new update at 10:06PM - 27/4
+     *
+     * @param username
+     * @param email
+     * @param password
+     * @param roles
+     */
+    public User2(String username, String email, String password, Set<Role> roles) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+    }
+
+
+    /**
+     * update to insert user to user2 in testcontroller
+     * @param id
+     * @param username
+     * @param email
+     * @param password
+     * @param roles
+     */
+    public User2(Long id, String username, String email, String password, Set<Role> roles) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                '}';
+    }
+}

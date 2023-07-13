@@ -1,0 +1,87 @@
+//FILE NÀY LƯU CÁC ĐOẠN CODE ĐÃ QUA CHỈNH SỬA HÀNG CHỤC LẦN VÀ PHẢI ĐỂ XÓ TRONG CÁI FILE NÀY VÌ KHÔNG ĐÚNG YÊU CẦU CỦA ANH DẠY ĐƯA RA
+
+@GetMapping("/setting")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> accessFunction(@RequestHeader Map<String, String> headers, HttpServletRequest request) throws IOException {
+        headers.forEach((key, value) -> {
+        });
+        String token = headers.get("authorization").toString();
+        System.out.println(token);
+        token = token.replaceAll("Bearer", "");
+        token = token.replaceAll(" ", "");
+        System.out.println(token);
+        decodeJWTToken_readOnyName(token);
+
+        System.out.println(payload_readName);
+
+        for (User user : userRepository.findAll()) {
+            if (payload_readName.contains(user.getUsername())) {
+                payload_readName = user.getUsername();
+                System.out.println(payload_readName);
+            }
+        }
+
+     //   if (userRepository2.existsByUsername(payload_readName)) {
+            if (headers.get("accept").equals("allow")) {
+                for (User user : userRepository.findAll()) {
+                    if (userRepository2.existsByUsername(user.getUsername())) {
+                        list_normal_person.add(user.getUsername());
+                        continue;
+                    }
+                    User2 user2 = new User2(
+                            user.getUsername(),
+                            user.getEmail(),
+                            user.getPassword()
+                    );
+                    userRepository2.save(user2);
+                }
+                FileWriter fileWriter = new FileWriter("file.txt");
+                for (String string : list_normal_person) {
+                    fileWriter.write(string + System.lineSeparator());
+                }
+                fileWriter.close();
+                return ResponseEntity.ok(new MessageResponse("open api function successfully"));
+
+            } else if (headers.get("accept").equals("non allow")) {
+                userRepository2.deleteAll();
+                for (User user : userRepository.findAll()) {
+                    for (int i = 0; i < list_normal_person.size(); i++) {
+                        if (list_normal_person.get(i).equals(user.getUsername())) {
+                            User2 user2 = new User2(
+                                    user.getUsername(),
+                                    user.getEmail(),
+                                    user.getPassword()
+                            );
+                            userRepository2.save(user2);
+                        }
+                    }
+                }
+                FileWriter fileWriter = new FileWriter("file.txt");
+                for (String string : list_normal_person) {
+                    fileWriter.write(string + System.lineSeparator());
+                }
+                fileWriter.close();
+
+                return ResponseEntity.ok(new MessageResponse("close api function successfully"));
+
+            } else {
+                String data = headers.get("accept").toString();
+                for (int i = 0; i < list_normal_person.size(); i++) {
+                    if (list_normal_person.get(i).equals(data)) {
+                        return ResponseEntity.badRequest().body(new MessageResponse("user is already in the table"));
+                    }
+                }
+                for (User user : userRepository.findAll()) {
+                    if (user.getUsername().equals(data)) {
+                        User2 user2 = new User2(
+                                user.getUsername(),
+                                user.getEmail(),
+                                user.getPassword()
+                        );
+                        userRepository2.save(user2);
+                    }
+                }
+         //   }
+        }
+        return ResponseEntity.badRequest().body(new MessageResponse("Unknow data"));
+    }

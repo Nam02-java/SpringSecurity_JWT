@@ -1,0 +1,39 @@
+
+Bài này mình đã mô phỏng thành ba hướng giải quyết
+
+
+theo phân tích đề bài sẽ có ba yêu cầu chính gồm :
+
+sẽ thành hướng một :
+
+user a và và user b có cùng một role ( là user_role ) tuy nhiên user a sẽ truy cập được chức năng còn user b thì không -> user a có một quyền lực mềm mà user b không có và chức năng ở đây sẽ được cho là api có tên /function trên postman
+
+yêu cầu 1 : " lúc thì user a vào được user b thì không " -> user a có thể cấm user b truy cập chức năng
+yêu cầu 2 : " cái này a a có thể tùy chỉnh config ngược lại " -> swap ( hoán đổi ) -> user a mất quyền truy cập chức năng và trao quyền đó cho user b
+yêu cầu 3 : "lúc thì a config cả 2 đều vào được " -> public function api -> mọi người có thể truy cập api /function tự do ko phân biệt
+
+tổng quát lại : 1. thì user a có quyền lực mềm hơn user b nên có quyền truy cập cũng như có thể config quyền bật / tắt , swap quyền vào api /function
+2. user a có quyền tủy chỉnh hoạt động ở api tên /setting và hệ thống sẽ đọc value đặt sẵn trong key Accpet gửi về và xem đó là quyền gì rồi thao tá
+
+
+Hiện tại mình đã sử dụng hai cách :
+
+Cách 1 : user a ngoài user_role thì sẽ có thêm superUser_role để đánh dấu đây là người có quyền , còn user b thì chỉ có user_role mà thôi -> nghĩa là mỗi khi truy cập function thì sẽ check 2 lớp -> lớp đầu tiên là @PreAuthorize(“User”) -> lớp thứ hai là requestIsUserInRole(“SuperUser”) -> đáp ứng được 2 lớp bảo mật check role này sẽ có thể đi sâu vào việc setting hoặc truy cập chức năng
+
+Cách 2 : tạo 2 bảng user trong mySQL , bảng user1 sẽ lưu toàn bộ tất cả user ko phân biệt gì hết , bản user2 sẽ chỉ lưu những user có quyền truy cập , tùy chỉnh và mỗi khi truy cập hoặc tùy chỉnh cứ lôi bảng user2 thông qua REPOSITORY ra mà check và thao tác
+
+em đã làm hai cách này tuy nhiên người giao bài cho em vẫn không đồng ý với cả hai cách làm này của em , mọi người có thể chỉ ra cái sai của em được ko ạ ? hoặc đề bài em đọc ko hiểu kĩ có vấn đề gì đó ?
+
+và đây là lớp websecurityConfig của mình ( lý do có package model2 và userrepository2)
+
+
+
+nhưng hướng suy nghĩ bài toán 2 sẽ thành :
+
+user a và và user b có cùng một role ( là user_role ) tuy nhiên user a sẽ truy cập được chức năng còn user b thì không -> user a có một quyền lực mềm mà user b không có và chức năng ở đây sẽ được cho là api có tên /function trên postman
+và tất cả config trên database mà database ở đây lại là MYSQL SYNTAX , hãy vào trong file MYSQL_syntax vì bài toán này đang làm theo hướng đó
+
+để truy cập được api @GetMapping("/function") sẽ cần hai lớp bảo mật là
+1. cái kiên quyết phải có là USER_ROLE
+2. là cột function_name ở bảng users trong mysql có tên chứ ko phải là null
+-> đáp ứng hai cầu trên sẽ được truy cập
